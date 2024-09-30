@@ -29,9 +29,6 @@ class HolidaysPublicNextYearWizard(models.TransientModel):
 
     def create_public_holidays(self):
         self.ensure_one()
-
-        last_ph_dict = {}
-
         ph_env = self.env["hr.holidays.public"]
         pholidays = self.template_ids or ph_env.search([])
 
@@ -43,23 +40,18 @@ class HolidaysPublicNextYearWizard(models.TransientModel):
                 )
             )
 
+        last_ph_dict = {}
         for ph in pholidays:
-            last_ph_country = last_ph_dict.get(ph.country_id, False)
-
-            if last_ph_country:
-                if last_ph_country.year < ph.year:
-                    last_ph_dict[ph.country_id] = ph
-            else:
+            if (
+                ph.country_id not in last_ph_dict
+                or last_ph_dict[ph.country_id].year < ph.year
+            ):
                 last_ph_dict[ph.country_id] = ph
 
         new_ph_ids = []
         for last_ph in last_ph_dict.values():
             new_year = self.year or last_ph.year + 1
-
-            new_ph_vals = {"year": new_year}
-
-            new_ph = last_ph.copy(new_ph_vals)
-
+            new_ph = last_ph.copy({"year": new_year})
             new_ph_ids.append(new_ph.id)
 
             for last_ph_line in last_ph.line_ids:
@@ -89,7 +81,7 @@ class HolidaysPublicNextYearWizard(models.TransientModel):
         action = {
             "type": "ir.actions.act_window",
             "name": "New public holidays",
-            "view_mode": "tree,form",
+            "view_mode": "list,form",
             "res_model": "hr.holidays.public",
             "domain": domain,
         }

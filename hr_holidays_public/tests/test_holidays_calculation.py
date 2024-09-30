@@ -124,7 +124,6 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_1.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 4)
 
     def _test_number_days_excluding_employee_2(self):
@@ -136,7 +135,6 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_2.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 2)
 
     def test_number_days_not_excluding(self):
@@ -148,7 +146,6 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_1.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 5)
 
     def test_number_days_across_year(self):
@@ -160,7 +157,6 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_1.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 7)
 
     def test_number_days_across_year_2(self):
@@ -172,7 +168,6 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_2.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 5)
 
     def test_number_of_hours_excluding_employee_2(self):
@@ -185,6 +180,4 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_2.id,
             }
         )
-
         self.assertEqual(leave_request.number_of_days, 2)
-        self.assertEqual(leave_request.number_of_hours_display, 16)

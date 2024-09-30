@@ -106,7 +106,7 @@ class TestHolidaysPublic(TestHolidaysPublicBase):
         # ensures that correct holidays are identified
         self.assertTrue(self.holiday_model.is_public_holiday(date(1995, 10, 14)))
 
-    def test_isnot_holiday_in_country(self):
+    def test_is_not_holiday_in_country(self):
         # ensures that correct holidays are identified for a country
         self.assertFalse(
             self.holiday_model.is_public_holiday(

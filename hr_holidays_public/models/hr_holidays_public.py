@@ -3,7 +3,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import datetime
-from datetime import date
 
 from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -16,7 +15,9 @@ class HrHolidaysPublic(models.Model):
     _order = "year"
 
     display_name = fields.Char("Name", compute="_compute_display_name", store=True)
-    year = fields.Integer("Calendar Year", required=True, default=date.today().year)
+    year = fields.Integer(
+        "Calendar Year", required=True, default=fields.Date.today().year
+    )
     line_ids = fields.One2many("hr.holidays.public.line", "year_id", "Holiday Dates")
     country_id = fields.Many2one("res.country", "Country")
 
@@ -103,8 +104,7 @@ class HrHolidaysPublic(models.Model):
         states_filter = self._get_domain_states_filter(
             pholidays, start_dt, end_dt, employee_id
         )
-        hhplo = self.env["hr.holidays.public.line"]
-        holidays_lines = hhplo.search(states_filter)
+        holidays_lines = self.env["hr.holidays.public.line"].search(states_filter)
         return holidays_lines
 
     @api.model
@@ -118,11 +118,7 @@ class HrHolidaysPublic(models.Model):
         holidays_lines = self.get_holidays_list(
             year=selected_date.year, employee_id=employee_id
         )
-        if holidays_lines:
-            hol_date = holidays_lines.filtered(lambda r: r.date == selected_date)
-            if hol_date.ids:
-                return True
-        return False
+        return bool(holidays_lines.filtered(lambda r: r.date == selected_date))
 
 
 class HrHolidaysPublicLine(models.Model):
