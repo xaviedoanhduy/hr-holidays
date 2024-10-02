@@ -104,19 +104,21 @@ class TestHolidaysComputeDaysBase(TransactionCase):
         )
 
         cls.holiday_type = cls.HrLeaveType.create(
-            {"name": "Leave Type Test", "exclude_public_holidays": True}
+            {"name": "Leave Type Test", "include_public_holidays_in_duration": False}
         )
         cls.holiday_type_no_excludes = cls.HrLeaveType.create(
             {
                 "name": "Leave Type Test Without excludes",
-                "exclude_public_holidays": False,
+                "include_public_holidays_in_duration": True,
             }
         )
 
 
 class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
     def test_number_days_excluding_employee_1(self):
-        leave_request = self.HrLeave.new(
+        leave_request = self.HrLeave.with_context(
+            partner_id=self.employee_1.address_id.id
+        ).new(
             {
                 "date_from": "1946-12-23 00:00:00",  # Monday
                 "date_to": "1946-12-29 23:59:59",  # Sunday
@@ -124,11 +126,12 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_1.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 4)
 
     def _test_number_days_excluding_employee_2(self):
-        leave_request = self.HrLeave.new(
+        leave_request = self.HrLeave.with_context(
+            partner_id=self.employee_2.address_id.id
+        ).new(
             {
                 "date_from": "1946-12-23 00:00:00",  # Monday
                 "date_to": "1946-12-29 23:59:59",  # Sunday
@@ -136,11 +139,12 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_2.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 2)
 
     def test_number_days_not_excluding(self):
-        leave_request = self.HrLeave.new(
+        leave_request = self.HrLeave.with_context(
+            partner_id=self.employee_1.address_id.id
+        ).new(
             {
                 "date_from": "1946-12-23 00:00:00",  # Monday
                 "date_to": "1946-12-29 23:59:59",  # Sunday
@@ -148,11 +152,12 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_1.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 5)
 
     def test_number_days_across_year(self):
-        leave_request = self.HrLeave.new(
+        leave_request = self.HrLeave.with_context(
+            partner_id=self.employee_1.address_id.id
+        ).new(
             {
                 "date_from": "1946-12-23 00:00:00",  # Monday
                 "date_to": "1947-01-03 23:59:59",  # Friday
@@ -160,11 +165,12 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_1.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 7)
 
     def test_number_days_across_year_2(self):
-        leave_request = self.HrLeave.new(
+        leave_request = self.HrLeave.with_context(
+            partner_id=self.employee_2.address_id.id
+        ).new(
             {
                 "date_from": "1946-12-23 00:00:00",  # Monday
                 "date_to": "1947-01-03 23:59:59",  # Friday
@@ -172,12 +178,13 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
                 "employee_id": self.employee_2.id,
             }
         )
-        leave_request._compute_duration()
         self.assertEqual(leave_request.number_of_days, 5)
 
     def test_number_of_hours_excluding_employee_2(self):
         self.holiday_type.request_unit = "hour"
-        leave_request = self.HrLeave.new(
+        leave_request = self.HrLeave.with_context(
+            partner_id=self.employee_2.address_id.id
+        ).new(
             {
                 "date_from": "1946-12-23 00:00:00",  # Monday
                 "date_to": "1946-12-29 23:59:59",  # Sunday
@@ -187,4 +194,3 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
         )
 
         self.assertEqual(leave_request.number_of_days, 2)
-        self.assertEqual(leave_request.number_of_hours_display, 16)
