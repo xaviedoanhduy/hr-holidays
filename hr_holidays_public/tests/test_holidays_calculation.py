@@ -103,15 +103,7 @@ class TestHolidaysComputeDaysBase(TransactionCase):
             }
         )
 
-        cls.holiday_type = cls.HrLeaveType.create(
-            {"name": "Leave Type Test", "exclude_public_holidays": True}
-        )
-        cls.holiday_type_no_excludes = cls.HrLeaveType.create(
-            {
-                "name": "Leave Type Test Without excludes",
-                "exclude_public_holidays": False,
-            }
-        )
+        cls.holiday_type = cls.HrLeaveType.create({"name": "Leave Type Test"})
 
 
 class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
@@ -142,13 +134,14 @@ class TestHolidaysComputeDays(TestHolidaysComputeDaysBase):
         self.assertEqual(leave_request.number_of_days, 2)
 
     def test_number_days_not_excluding(self):
+        self.holiday_type.include_public_holidays_in_duration = True
         leave_request = self.HrLeave.with_context(
             partner_id=self.employee_1.address_id.id
         ).new(
             {
                 "date_from": "1946-12-23 00:00:00",  # Monday
                 "date_to": "1946-12-29 23:59:59",  # Sunday
-                "holiday_status_id": self.holiday_type_no_excludes.id,
+                "holiday_status_id": self.holiday_type.id,
                 "employee_id": self.employee_1.id,
             }
         )

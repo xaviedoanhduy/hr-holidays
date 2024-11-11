@@ -16,26 +16,15 @@ class HrLeave(models.Model):
         module.
         """
         for leave in self:
-            if (
-                leave.holiday_status_id.exclude_public_holidays
-                or not leave.holiday_status_id
-            ):
-                leave = leave.with_context(
-                    employee_id=leave.employee_id.id, exclude_public_holidays=True
-                )
+            if not leave.holiday_status_id.include_public_holidays_in_duration:
+                leave = leave.with_context(exclude_public_holidays=True)
             super(HrLeave, leave).action_validate(check_state)
         return True
 
     def _get_durations(self, check_leave_type=True, resource_calendar=None):
-        if self.holiday_status_id.exclude_public_holidays or not self.holiday_status_id:
-            instance = self.with_context(
-                employee_id=self.employee_id.id, exclude_public_holidays=True
-            )
-        else:
-            instance = self
-        return super(HrLeave, instance)._get_durations(
-            check_leave_type, resource_calendar
-        )
+        if not self.holiday_status_id.include_public_holidays_in_duration:
+            self = self.with_context(exclude_public_holidays=True)
+        return super()._get_durations(check_leave_type, resource_calendar)
 
     def _get_domain_from_get_unusual_days(self, date_from, date_to=None):
         domain = [("date", ">=", date_from)]

@@ -3,7 +3,7 @@
 
 import logging
 
-from odoo import _, fields, models
+from odoo import fields, models
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class HolidaysPublicNextYearWizard(models.TransientModel):
 
         if not pholidays:
             raise UserError(
-                _(
+                self.env._(
                     "No Public Holidays found as template. "
                     "Please create the first Public Holidays manually."
                 )
@@ -70,7 +70,7 @@ class HolidaysPublicNextYearWizard(models.TransientModel):
                     # complexity because previous or next day might also be a
                     # public holiday.
                     raise UserError(
-                        _(
+                        self.env._(
                             "You cannot use as template the public holidays "
                             "of a year that "
                             "includes public holidays on 29th of February "
@@ -88,7 +88,7 @@ class HolidaysPublicNextYearWizard(models.TransientModel):
 
         action = {
             "type": "ir.actions.act_window",
-            "name": _("New public holidays"),
+            "name": self.env._("New public holidays"),
             "view_mode": "list,form",
             "res_model": "hr.holidays.public",
             "domain": domain,

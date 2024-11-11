@@ -3,9 +3,8 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import datetime
-from datetime import date
 
-from odoo import SUPERUSER_ID, _, api, fields, models
+from odoo import SUPERUSER_ID, api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -16,7 +15,9 @@ class HrHolidaysPublic(models.Model):
     _order = "year"
 
     display_name = fields.Char("Name", compute="_compute_display_name", store=True)
-    year = fields.Integer("Calendar Year", required=True, default=date.today().year)
+    year = fields.Integer(
+        "Calendar Year", required=True, default=fields.Date.today().year
+    )
     line_ids = fields.One2many("hr.holidays.public.line", "year_id", "Holiday Dates")
     country_id = fields.Many2one("res.country", "Country")
 
@@ -34,7 +35,7 @@ class HrHolidaysPublic(models.Model):
             ]
         ):
             raise ValidationError(
-                _(
+                self.env._(
                     "You can't create duplicate public holiday per year and/or"
                     " country"
                 )
@@ -163,7 +164,7 @@ class HrHolidaysPublicLine(models.Model):
     def _check_date_state_one(self):
         if self.date.year != self.year_id.year:
             raise ValidationError(
-                _(
+                self.env._(
                     "Dates of holidays should be the same year as the calendar"
                     " year they are being assigned to"
                 )
@@ -176,16 +177,17 @@ class HrHolidaysPublicLine(models.Model):
             for holiday in holidays:
                 if self.state_ids & holiday.state_ids:
                     raise ValidationError(
-                        _(
+                        self.env._(
                             "You can't create duplicate public holiday per date"
-                            " %s and one of the country states."
+                            f" {self.date} and one of the country states."
                         )
-                        % self.date
                     )
         domain = self._get_domain_check_date_state_one()
         if self.search_count(domain) > 1:
             raise ValidationError(
-                _("You can't create duplicate public holiday per date %s.") % self.date
+                self.env._(
+                    f"You can't create duplicate public holiday per date {self.date}."
+                )
             )
         return True
 

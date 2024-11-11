@@ -19,7 +19,6 @@
         "data/data.xml",
         "security/ir.model.access.csv",
         "views/hr_holidays_public_view.xml",
-        "views/hr_leave_type.xml",
         "wizards/holidays_public_next_year_wizard.xml",
     ],
     "installable": True,
